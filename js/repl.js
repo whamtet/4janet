@@ -1,111 +1,59 @@
-(function() {
-  var ansi_up = new AnsiUp;
-  var printRaw = (function () {
-    var element = document.getElementById('replterm');
-    if (element) element.textContent = ''; // clear browser cache
-    return function (text) {
-      if (element) {
-        element.innerHTML += text;
-        element.scrollTop = element.scrollHeight; // focus on bottom
-      }
-    }
-  })();
 
-  function htmlEscape(text) {
-    text = ansi_up.ansi_to_html(text);
-    text = text.replace('\n', '<br>', 'g');
-    return text;
-  }
+const $ = x => document.querySelector(x);
+const $$ = x => Array.from(document.querySelectorAll(x));
 
-  function cleanContentEditableInput(text) {
-    text = text.replace(/\u00A0/g, " ");
-    return text;
-  }
+let repl_input;
+const booleanSym = 'boolean' + Math.random().toString().substring(2);
+let showPrint = false;
 
-  function print(text) {
-    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-    printRaw(htmlEscape(text));
-  }
+function fail(i) {
+    $('#fail' + i).classList.remove('hidden');
+    $('#pass' + i).classList.add('hidden');
+}
+function pass(i) {
+    $('#pass' + i).classList.remove('hidden');
+    $('#fail' + i).classList.add('hidden');
+}
 
-  // Don't print initial errors
-  var errorsReady = false;
-
-  // Line history
-  var replHistory = [''];
-  var historyIndex = 0;
-
-  // prevent infinite restarts
-  var restartCount = 0;
-
-  var Module = {
-    preRun: [],
+// Module is later fully initialized by janet.js
+window.Module = {
     print: function(x) {
-      console.log('printing', x);
-      // print(x + '\n');
+        if (showPrint) {
+            Array.from(x).forEach(function(c, i) {
+                if (0 < i && i < x.length - 1) {
+                    if (c === 't') {
+                        pass(i - 1)
+                    } else {
+                        fail(i - 1);
+                    }
+                }
+            })
+            if (x && !x.includes('f')) {
+                $('#myModal').showModal();
+            }
+        } else {
+            console.log(x);
+        }
     },
     printErr: function(text) {
-      if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-      if (errorsReady) {
-        printRaw('<span style="color:#E55;">' + htmlEscape(text + '\n') + '</span>')
-      } else {
+        if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
         console.error(text);
-      }
     },
     postRun: [function() {
-      Module._repl_init()
-      var repl_input = Module.cwrap('repl_input', 'void', ['string']);
-	    repl_input('(+ 1 2)\n')
-      var repl_prompt = Module.cwrap('repl_prompt', 'string', []);
-      var promptel = document.getElementById('replprompt');
-      promptel.textContent = repl_prompt();
-      document.getElementById('replin').addEventListener('keydown', (e) => {
-        const srcElement = e.target || srcElement;
-        if (e.keyCode === 13) {
-          const content = srcElement.textContent;
-          const text = cleanContentEditableInput(content + '\n');
-          replHistory.pop();
-          replHistory.push(content);
-          historyIndex = replHistory.length;
-          replHistory.push('');
-          srcElement.textContent = '';
-          printRaw('<span style="color:#9198e5;">' + htmlEscape(repl_prompt() + text) + '</span>')
-          repl_input(text);
-          promptel.textContent = repl_prompt();
-        } else if (e.keyCode === 38) {
-          if (historyIndex > 0) {
-            if (historyIndex === replHistory.length - 1) {
-              replHistory.pop()
-              replHistory.push(srcElement.textContent)
-            }
-            historyIndex--;
-            srcElement.textContent = replHistory[historyIndex];
-          }
-        } else if (e.keyCode === 40) {
-          if (historyIndex < replHistory.length - 1) {
-            if (historyIndex === replHistory.length - 1) {
-              replHistory.pop()
-              replHistory.push(srcElement.textContent)
-            }
-            historyIndex++;
-            srcElement.textContent = replHistory[historyIndex];
-          }
-        }
-      });
-      errorsReady = true;
+        Module._repl_init()
+        repl_input = Module.cwrap('repl_input', 'void', ['string']);
+        repl_input(`(defn ${booleanSym} [x] (if x "t" "f"))`);
+        showPrint = true;
     }],
-  };
+};
 
-  window.onerror = function (code) {
-    const element = document.getElementById('replterm');
-    if (restartCount > 100) {
-      element.innerHTML = '<span style="color:#E55">Repl restarted too many times. Browser may be unsupported.<span><br>';
-    } else {
-      restartCount++;
-      element.innerHTML = '<span style="color:#E55">Restarting repl...</span><br>';
-      Module._repl_deinit();
-      Module._repl_init();
-    }
-  };
+function submit() {
+    const unitTests = $$('.unit-test').map(x => x.innerText).join(' ');
+    const solution = $('#solution').innerText;
 
-  window.Module = Module;
-})();
+    const substituted = unitTests.replaceAll('__', solution);
+    console.log('substituted ' + substituted);
+    repl_input(`(->> [${substituted}] (map ${booleanSym}) string/join)`);
+}
+
+setTimeout(submit, 500);

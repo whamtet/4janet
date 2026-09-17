@@ -6,40 +6,72 @@
   <link href="./output.css" rel="stylesheet">
 </head>
 <body>
-  <div class="w-1/2 mx-auto mt-6">
-    <h1 class="text-6xl font-semibold">4Janet</h1>
-    <div class="my-4 flex gap-2">
-      <a class="text-blue-600" href="/">home</a>
-      <span> | </span>
-      <a class="text-blue-600" href="https://github.com/whamtet/4janet">github</a>
-    </div>
-    <h2 class="text-3xl font-semibold mb-4">Problem 1, Nothing but the Truth</h2>
-    <div class="mb-4">
-      <span class="text-lg font-semibold">Difficulty: </span>
-      <span class="text-lg">elementary</span>
-    </div>
-    <p class="mb-6">
-      Complete the expression so it will evaluate to true.
-    </p>
+<div class="w-1/2 mx-auto mt-6">
+  <h1 class="text-6xl font-semibold">4Janet</h1>
+  <div class="my-4 flex gap-2">
+    <a class="text-blue-600" href="/">home</a>
+    <span> | </span>
+    <a class="text-blue-600" href="https://github.com/whamtet/4janet">github</a>
+  </div>
+  <h2 class="text-3xl font-semibold mb-4">Problem 1, Nothing but the Truth</h2>
+  <div class="mb-4">
+    <span class="text-lg font-semibold">Difficulty: </span>
+    <span class="text-lg">elementary</span>
+  </div>
+  <p class="mb-6">
+    Complete the expression so it will evaluate to true.
+  </p>
 
-    <div class="flex flex-col gap-4 bg-gray-200 font-mono p-4">
-      <code>(= __ true)</code>
-    </div>
+  <div class="flex flex-col gap-4 bg-gray-200 font-mono p-4">
 
-    <p class="my-4">
-      Write code which will fill in the above blanks:
-    </p>
-
-    <div class="bg-gray-300 font-mono p-4 mb-4" contenteditable="true">
-
-    </div>
+    <code style="display: flex; flex-flow: wrap;">
+      <span class="unit-test">(= __ true)</span>
+      <span
+              id="pass0"
+              class="hidden"
+              style="color: green; align-self: center; width: 4.5em; margin-left: auto;"
+      >
+          🟢 pass
+        </span>
+      <span
+              id="fail0"
+              class="hidden"
+              style="color: red; align-self: center; width: 5.5em; margin-left: auto;"
+      >
+          🔴 uh-oh
+        </span>
+    </code>
 
   </div>
-    <!-- Set up emscripten runtime -->
-    <script type="text/javascript" src="js/ansi_up.js"></script>
-    <script type='text/javascript' src="js/repl.js"></script>
 
-    <!-- Load and start running janet -->
-    <script async type="text/javascript" src="js/janet.js"></script>
+  <p class="my-4">
+    Write code which will fill in the above blanks:
+  </p>
+
+  <div id="solution" class="bg-gray-300 font-mono p-4 mb-4" contenteditable="true">
+    true
+  </div>
+
+  <div class="mb-8">
+    <button
+            type="button"
+            style="background-color: #3b22ea"
+            class="text-white px-3 py-1"
+            onclick="submit()"
+    >
+      Run
+    </button>
+  </div>
+
+</div>
+
+<dialog id="myModal" onclick="if (event.target === this) this.close()">
+  <h2 class="text-3xl font-semibold mb-4">Congratulations on solving problem #1!</h2>
+  <p>Next problem <a class="text-blue-600" href="2.html">#2 Simple Math</a></p>
+</dialog>
+<script type='text/javascript' src="js/repl.js"></script>
+
+<!-- Load and start running janet -->
+<script async type="text/javascript" src="js/janet.js"></script>
 </body>
 </html>

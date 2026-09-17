@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    border: 0;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px #0004;
+}
+
+dialog::backdrop {
+    background: #0008;
+}
