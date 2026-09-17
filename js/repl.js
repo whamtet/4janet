@@ -40,7 +40,8 @@
   var Module = {
     preRun: [],
     print: function(x) {
-      print(x + '\n');
+      console.log('printing', x);
+      // print(x + '\n');
     },
     printErr: function(text) {
       if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
@@ -53,6 +54,7 @@
     postRun: [function() {
       Module._repl_init()
       var repl_input = Module.cwrap('repl_input', 'void', ['string']);
+	    repl_input('(+ 1 2)\n')
       var repl_prompt = Module.cwrap('repl_prompt', 'string', []);
       var promptel = document.getElementById('replprompt');
       promptel.textContent = repl_prompt();

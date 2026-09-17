@@ -22,7 +22,7 @@
       Complete the expression so it will evaluate to true.
     </p>
 
-    <div class="flex flex-col gap-4 bg-gray-100 font-mono p-4">
+    <div class="flex flex-col gap-4 bg-gray-200 font-mono p-4">
       <code>(= __ true)</code>
     </div>
 
@@ -30,10 +30,16 @@
       Write code which will fill in the above blanks:
     </p>
 
-    <div class="bg-gray-200 font-mono p-4 mb-4" contenteditable="true">
+    <div class="bg-gray-300 font-mono p-4 mb-4" contenteditable="true">
 
     </div>
 
   </div>
+    <!-- Set up emscripten runtime -->
+    <script type="text/javascript" src="js/ansi_up.js"></script>
+    <script type='text/javascript' src="js/repl.js"></script>
+
+    <!-- Load and start running janet -->
+    <script async type="text/javascript" src="js/janet.js"></script>
 </body>
 </html>
