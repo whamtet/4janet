@@ -1,0 +1,24 @@
+{
+  "name": "4janet",
+  "version": "1.0.0",
+  "description": "4Clojure for Janet Lang.",
+  "homepage": "https://github.com/whamtet/4janet#readme",
+  "bugs": {
+    "url": "https://github.com/whamtet/4janet/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whamtet/4janet.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "watch": "npx @tailwindcss/cli -i ./src/input.css -o output.css --watch"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}
