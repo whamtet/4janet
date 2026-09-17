@@ -3,9 +3,9 @@ const $ = x => document.querySelector(x);
 const $$ = x => Array.from(document.querySelectorAll(x));
 
 let repl_input;
-let showPrint = false;
-let testsToRun = [];
-let results = [];
+let initializing = true;
+let tasks = [];
+let taskIndex = 0;
 
 function fail(i) {
     $('#fail' + i).classList.remove('hidden');
@@ -27,47 +27,54 @@ function runTest() {
 
 // Module is later fully initialized by janet.js
 window.Module = {
-    print: function(x) {
-        x = x.substring(1, x.length - 1);
-        if (showPrint) {
-            if (x.startsWith('t')) {
-                pass(x.substring(1));
-                results.push(true);
+    print: function(result) {
+        if (!initializing) {
+            const {solution, i} = tasks[taskIndex];
+            if (solution) {
+                // disp(result)
             } else {
-                fail(x.substring(1));
-                results.push(false);
-            }
-            testsToRun = testsToRun.slice(1);
-            if (testsToRun.length) {
-                runTest();
-            } else {
-                if (results.length && results.every(x => x)) {
-                    $('#myModal').showModal();
+                if ('"true"' === result) {
+                    tasks[taskIndex].success = true;
+                    pass(i);
+                } else {
+                    fail(i);
                 }
             }
-
-        } else {
-            console.log(x);
+            taskIndex++;
+            if (taskIndex < tasks.length) {
+                const nextTask = tasks[taskIndex];
+                repl_input(nextTask.toExecute);
+            } else if (tasks.slice(1).every(x => x.success)) {
+                // offer to move to next problem!
+                $('#myModal').showModal();
+            }
         }
     },
     printErr: function(text) {
         if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-        console.error(text);
+        // dispError(text);
     },
     postRun: [function() {
         Module._repl_init()
         repl_input = Module.cwrap('repl_input', 'void', ['string']);
-        showPrint = true;
+        initializing = false;
         submit()
     }],
 };
 
 function submit() {
 
-    testsToRun = $$('.unit-test');
-    results = [];
+    taskIndex = 0;
+    tasks = [];
 
-    if (testsToRun.length) {
-        runTest();
-    }
+    const solution = $('#solution').innerText;
+    tasks.push({solution});
+
+    $$('.unit-test').forEach((el, i) => {
+        const testCode = el.innerText;
+        const toExecute = testCode.replaceAll('__', solution);
+        tasks.push({toExecute, i});
+    });
+
+    repl_input(solution);
 }
