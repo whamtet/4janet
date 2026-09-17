@@ -3,8 +3,9 @@ const $ = x => document.querySelector(x);
 const $$ = x => Array.from(document.querySelectorAll(x));
 
 let repl_input;
-const booleanSym = 'boolean' + Math.random().toString().substring(2);
 let showPrint = false;
+let testsToRun = [];
+let results = [];
 
 function fail(i) {
     $('#fail' + i).classList.remove('hidden');
@@ -15,22 +16,36 @@ function pass(i) {
     $('#fail' + i).classList.add('hidden');
 }
 
+function runTest() {
+    const solution = $('#solution').innerText;
+
+    const testEl = testsToRun[0];
+    const toRun = testEl.innerText.replaceAll('__', solution);
+    const index = testEl.dataset.index;
+    repl_input(`(string (if ${toRun} "t" "f") ${index})`);
+}
+
 // Module is later fully initialized by janet.js
 window.Module = {
     print: function(x) {
+        x = x.substring(1, x.length - 1);
         if (showPrint) {
-            Array.from(x).forEach(function(c, i) {
-                if (0 < i && i < x.length - 1) {
-                    if (c === 't') {
-                        pass(i - 1)
-                    } else {
-                        fail(i - 1);
-                    }
-                }
-            })
-            if (x && !x.includes('f')) {
-                $('#myModal').showModal();
+            if (x.startsWith('t')) {
+                pass(x.substring(1));
+                results.push(true);
+            } else {
+                fail(x.substring(1));
+                results.push(false);
             }
+            testsToRun = testsToRun.slice(1);
+            if (testsToRun.length) {
+                runTest();
+            } else {
+                if (results.length && results.every(x => x)) {
+                    $('#myModal').showModal();
+                }
+            }
+
         } else {
             console.log(x);
         }
@@ -42,18 +57,17 @@ window.Module = {
     postRun: [function() {
         Module._repl_init()
         repl_input = Module.cwrap('repl_input', 'void', ['string']);
-        repl_input(`(defn ${booleanSym} [x] (if x "t" "f"))`);
         showPrint = true;
+        submit()
     }],
 };
 
 function submit() {
-    const unitTests = $$('.unit-test').map(x => x.innerText).join(' ');
-    const solution = $('#solution').innerText;
 
-    const substituted = unitTests.replaceAll('__', solution);
-    console.log('substituted ' + substituted);
-    repl_input(`(->> [${substituted}] (map ${booleanSym}) string/join)`);
+    testsToRun = $$('.unit-test');
+    results = [];
+
+    if (testsToRun.length) {
+        runTest();
+    }
 }
-
-setTimeout(submit, 500);
