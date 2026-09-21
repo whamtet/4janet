@@ -1,9 +1,10 @@
 (ns app.gen
     (:require
-      [app.data :refer [problems]]
+      [app.data :as data]
       [hiccup.core :as h]))
 
 (def s (slurp "1.html"))
+(def t (slurp "index.html"))
 
 (defn- render-test [i test]
   [:code {:style "display: flex; flex-flow: wrap;"}
@@ -17,22 +18,37 @@
            :style "color: red; align-self: center; width: 5.5em; margin-left: auto;"}
     "🔴 uh-oh"]])
 
-(defn- render [{:keys [title tests description difficulty]}]
-  (->> tests
-       (map-indexed render-test)
-       h/html
-       (format s title difficulty description)))
+(defn- render-modal [this {:keys [id title]}]
+  [:dialog#myModal {:onclick="if (event.target === this) this.close()"}
+   [:h2 {:class "text-3xl font-semibold mb-4"}
+    (format "Congratulations on solving problem #%s!" (:id this))]
+   (if id
+     [:p "Next problem "
+      [:a {:class "text-blue-600" :href (str id ".html")}
+       (format "#%s %s" id title)]]
+     [:p "You have solved all the problems! "
+      [:a {:class "text-blue-600" :href "https://github.com/whamtet/4janet"}
+       "Feel free to contribute more."]])])
 
-(doseq [problem problems]
-  (spit (format "dist/%s.html" (:id problem))
-        (render problem)))
+(defn- render-link [{:keys [id title]}]
+  [:div.mb-4
+   [:a {:class "text-blue-600" :href (format "/%s.html" id)} title]])
 
-(def page
-  [:html
-   [:head [:title "Hello from Babashka"]]
-   [:body
-    [:h1 "Native Hiccup Support"]
-    [:p "This is rendered natively via Babashka!"]]])
+(defn render-links []
+  (format t (h/html (map render-link data/problems))))
+
+(defn- render [{:keys [title tests description difficulty] :as this} next]
+  (format s
+          title
+          difficulty
+          description
+          (h/html (map-indexed render-test tests))
+          (h/html (render-modal this next))))
+
+(def problems (map list data/problems (conj (subvec data/problems 1) nil)))
 
 (defn -main [& args]
-  (println (str (h/html page))))
+  (doseq [[this next] problems]
+    (spit (format "dist/%s.html" (:id this))
+          (render this next)))
+  (spit "dist/index.html" (render-links)))

@@ -34,7 +34,7 @@
 
   </div>
 
-  <div id="disp" class="bg-gray-200 font-mono p-4 mb-4" contenteditable="true">
+  <div id="disp" class="bg-gray-200 font-mono p-4 mb-4 hidden" contenteditable="true">
   </div>
   <div id="disp-error" class="bg-gray-200 font-mono p-4 mb-4 text-red-500 hidden" contenteditable="true">
   </div>
@@ -52,10 +52,7 @@
 
 </div>
 
-<dialog id="myModal" onclick="if (event.target === this) this.close()">
-  <h2 class="text-3xl font-semibold mb-4">Congratulations on solving problem #1!</h2>
-  <p>Next problem <a class="text-blue-600" href="2.html">#2 Simple Math</a></p>
-</dialog>
+%s
 <script type='text/javascript' src="js/repl.js"></script>
 
 <!-- Load and start running janet -->
