@@ -1,39 +1,49 @@
 
 const $ = x => document.querySelector(x);
 const $$ = x => Array.from(document.querySelectorAll(x));
+const show = x => $(x).classList.remove('hidden');
+const hide = x => $(x).classList.add('hidden');
 
-let repl_input;
+let repl_input, repl_prompt;
 let initializing = true;
 let tasks = [];
 let taskIndex = 0;
 
 function fail(i) {
-    $('#fail' + i).classList.remove('hidden');
-    $('#pass' + i).classList.add('hidden');
+    show('#fail' + i)
+    hide('#pass' + i);
 }
 function pass(i) {
-    $('#pass' + i).classList.remove('hidden');
-    $('#fail' + i).classList.add('hidden');
+    show('#pass' + i);
+    hide('#fail' + i);
 }
 
-function runTest() {
-    const solution = $('#solution').innerText;
+const dispEl = $('#disp');
+const dispErrorEl = $('#disp-error');
 
-    const testEl = testsToRun[0];
-    const toRun = testEl.innerText.replaceAll('__', solution);
-    const index = testEl.dataset.index;
-    repl_input(`(string (if ${toRun} "t" "f") ${index})`);
+function disp(result) {
+    dispEl.classList.remove('hidden');
+    dispEl.innerText = result;
+    dispErrorEl.classList.add('hidden');
+}
+
+function dispError(result) {
+    dispEl.classList.add('hidden');
+    dispErrorEl.classList.remove('hidden');
+    dispErrorEl.innerText = result;
 }
 
 // Module is later fully initialized by janet.js
 window.Module = {
+    preRun: [],
     print: function(result) {
+        if (arguments.length > 1) result = Array.prototype.slice.call(arguments).join(' ');
         if (!initializing) {
             const {solution, i} = tasks[taskIndex];
             if (solution) {
-                // disp(result)
+                disp(result)
             } else {
-                if ('"true"' === result) {
+                if ('true' === result) {
                     tasks[taskIndex].success = true;
                     pass(i);
                 } else {
@@ -43,7 +53,7 @@ window.Module = {
             taskIndex++;
             if (taskIndex < tasks.length) {
                 const nextTask = tasks[taskIndex];
-                repl_input(nextTask.toExecute);
+                setTimeout(() => repl_input(nextTask.toExecute + '\n'), 0);
             } else if (tasks.slice(1).every(x => x.success)) {
                 // offer to move to next problem!
                 $('#myModal').showModal();
@@ -52,13 +62,15 @@ window.Module = {
     },
     printErr: function(text) {
         if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-        // dispError(text);
+        console.error(text);
+        dispError(text);
     },
     postRun: [function() {
         Module._repl_init()
         repl_input = Module.cwrap('repl_input', 'void', ['string']);
+        repl_prompt = Module.cwrap('repl_prompt', 'string', []);
         initializing = false;
-        submit()
+        submit();
     }],
 };
 
@@ -67,14 +79,14 @@ function submit() {
     taskIndex = 0;
     tasks = [];
 
-    const solution = $('#solution').innerText;
+    const solution = $('#solution').innerText.trim();
     tasks.push({solution});
 
     $$('.unit-test').forEach((el, i) => {
         const testCode = el.innerText;
-        const toExecute = testCode.replaceAll('__', solution);
+        const toExecute = testCode.replaceAll('__', solution).trim();
         tasks.push({toExecute, i});
     });
 
-    repl_input(solution);
+    repl_input(solution + '\n');
 }
