@@ -70,7 +70,6 @@ window.Module = {
         repl_input = Module.cwrap('repl_input', 'void', ['string']);
         repl_prompt = Module.cwrap('repl_prompt', 'string', []);
         initializing = false;
-        submit();
     }],
 };
 

@@ -1,3 +1,4 @@
+dist/*.html
 output.css
 .idea
 node_modules
