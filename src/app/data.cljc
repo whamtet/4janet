@@ -19,9 +19,8 @@ it will evaluate to true."
 
    {:id         3
     :title       "Strings"
-    :tests       ["(= __ (.toUpperCase \"hello world\"))"]
-    :description "Clojure strings are Java strings,
-so you can use Java string methods on them."
+    :tests       ["(= __ (string/ascii-upper \"hello world\"))"]
+    :description "Use string/ascii-upper to make Janet strings uppercase."
     :difficulty "elementary"
     :tags []}
 
