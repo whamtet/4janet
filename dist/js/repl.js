@@ -9,6 +9,10 @@ let initializing = true;
 let tasks = [];
 let taskIndex = 0;
 
+function repl_input2(s) {
+    repl_input(s + '\n')
+}
+
 function fail(i) {
     show('#fail' + i)
     hide('#pass' + i);
@@ -53,7 +57,7 @@ window.Module = {
             taskIndex++;
             if (taskIndex < tasks.length) {
                 const nextTask = tasks[taskIndex];
-                setTimeout(() => repl_input(nextTask.toExecute + '\n'), 0);
+                setTimeout(() => repl_input2(nextTask.toExecute), 0);
             } else if (tasks.slice(1).every(x => x.success)) {
                 // offer to move to next problem!
                 $('#myModal').showModal();
@@ -87,5 +91,5 @@ function submit() {
         tasks.push({toExecute, i});
     });
 
-    repl_input(solution + '\n');
+    repl_input2(solution);
 }
